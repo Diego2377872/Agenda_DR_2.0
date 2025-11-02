@@ -257,20 +257,6 @@ button {
   50% { opacity: 1; }
 }
 
-.tabla-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.tabla-container::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 10px;
-}
-
-.tabla-container::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -279,32 +265,24 @@ table {
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
   table-layout: fixed;
-  font-size: 0.88rem; /* 👈 Tamaño reducido global */
-}
-
-thead {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: rgba(248, 250, 252, 0.98);
+  font-size: 0.88rem;
 }
 
 thead th {
   background: linear-gradient(135deg, #f8fafc, #e2e8f0) !important;
   color: #4a5568;
   font-weight: 700;
-  font-size: 0.78rem; /* 👈 cabeceras más pequeñas */
+  font-size: 0.78rem;
   text-transform: uppercase;
   padding: 13px;
   border-bottom: 3px solid #cbd5e0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 td {
   padding: 12px;
   border-bottom: 1px solid #e2e8f0;
   color: #4a5568;
-  font-size: 0.87rem; /* 👈 texto más compacto */
+  font-size: 0.87rem;
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -312,86 +290,100 @@ td {
   text-align: center;
 }
 
-tbody tr:hover {
-  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 5px 15px rgba(102,126,234,0.1);
-}
-
-/* === ICONOS Y BOTONES === */
-.icon-fecha { color: #f59e0b; }
-.icon-actividad { color: #ec4899; }
-.icon-lugar { color: #10b981; }
-.icon-permiso { color: #3b82f6; }
-.icon-viatico { color: #8b5cf6; }
-.icon-imagen { color: #f59e0b; }
-.icon-acciones { color: #6b7280; }
-
-td[data-label="Imagen"] img {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
-}
-
-td[data-label="Imagen"] img:hover {
-  transform: scale(1.1);
-}
-
-/* === PAGINACIÓN Y ESTADOS === */
-.paginacion {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 15px;
-  background: rgba(255,255,255,0.9);
-  border-radius: 12px;
-}
-
-.paginacion button {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-width: 90px;
-}
-
-.paginacion button:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(102,126,234,0.3);
-}
-
-.paginacion button:disabled {
-  background: #e2e8f0;
-  color: #a0aec0;
-  cursor: not-allowed;
-}
-
-.mensaje-vacio {
-  text-align: center;
-  color: #a0aec0;
-  padding: 30px;
-  font-style: italic;
-}
-
-/* === RESPONSIVE MÓVIL === */
+/* === RESPONSIVE MÓVIL (TABLA COMPACTA) === */
 @media (max-width: 768px) {
-  .container { padding: 15px; margin: 15px auto; }
-  .form-grid, .filtros-grid { grid-template-columns: 1fr; }
+  .container { 
+    padding: 10px; 
+    margin: 10px auto; 
+  }
+
+  .form-grid, .filtros-grid { 
+    grid-template-columns: 1fr; 
+    gap: 10px;
+  }
 
   .tabla-container {
     overflow-x: auto;
-    padding-bottom: 10px;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    border: none;
   }
 
-  .tabla-container table { min-width: 700px; }
+  .tabla-container table {
+    min-width: 700px;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
 
-  td { font-size: 0.8rem; }
-  th { font-size: 0.75rem; }
+  thead th {
+    font-size: 0.7rem;
+    padding: 6px 4px;
+  }
+
+  tbody td {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  td[data-label="Imagen"] img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .acciones {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .btn-accion {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .btn-editar {
+    background: rgba(34, 197, 94, 0.15);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .btn-borrar {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .paginacion {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .paginacion button {
+    min-width: 80px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  #infoPagina {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-align: center;
+    min-width: 100px;
+  }
 }
+
 
 
