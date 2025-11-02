@@ -153,13 +153,6 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-.acciones-form {
-    display: flex;
-    gap: 15px;
-    margin-top: 15px;
-    flex-wrap: wrap; 
-}
-
 button {
   border: none;
   border-radius: 12px;
@@ -233,21 +226,41 @@ button {
   transform: translateY(-1px) scale(1.02);
 }
 
+/* === TABLA CON SCROLL HORIZONTAL === */
 .tabla-container {
   margin-top: 30px;
   height: 600px;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto; /* 👈 scroll horizontal */
   border-radius: 15px;
   position: relative;
   animation: fadeIn 0.8s ease-out 0.4s both;
   border: 1px solid #e2e8f0;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e0 #f7fafc;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Indicador visual de desplazamiento horizontal */
+.tabla-container::after {
+  content: "↔ Desliza para ver más";
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  pointer-events: none;
+  animation: fadeHint 2s ease-in-out infinite;
+}
+
+@keyframes fadeHint {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
 }
 
 .tabla-container::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 .tabla-container::-webkit-scrollbar-track {
@@ -473,94 +486,38 @@ td[data-label="Imagen"] img:hover {
   100% { transform: rotate(360deg); }
 }
 
-/* === RESPONSIVE MÓVIL (AJUSTE FINAL DE SCROLL HORIZONTAL) === */
+/* === RESPONSIVE MÓVIL === */
 @media (max-width: 768px) {
   .container { padding: 15px; margin: 15px auto; }
   .form-grid, .filtros-grid { grid-template-columns: 1fr; }
 
-  /* Ajuste de botones en el formulario */
-  .acciones-form {
-      flex-direction: column; 
-      gap: 10px;
-  }
-  #btnGuardar, #btnCancelar {
-      width: 100%; 
-      justify-content: center;
-  }
-  
-  /* === CAMBIOS CLAVE PARA EL SCROLL HORIZONTAL === */
-
+  /* Scroll horizontal en móviles */
   .tabla-container {
-    height: auto !important;
-    overflow-y: visible !important;
-    overflow-x: auto !important; /* CLAVE: Habilita el scroll horizontal */
-    padding: 0;
-    border: 1px solid #e2e8f0;
-    display: block !important;
-    width: 100%; /* Asegura que no tenga un ancho fijo que impida el desbordamiento */
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
   }
 
-  table {
-    min-width: 900px !important; /* Aumentamos el ancho mínimo para forzar un desbordamiento significativo */
-    width: auto !important; /* Dejamos que el ancho lo determine el min-width */
-    border-collapse: collapse;
-    table-layout: fixed;
-    display: table;
-  }
-  
-  /* Restauramos el comportamiento de tabla en las filas y celdas */
-  thead { display: table-header-group; }
-  tbody tr {
-    display: table-row;
-    opacity: 1 !important; /* FIX de visibilidad */
-    animation: none !important;
-    transform: none !important; 
-    transition: all 0.3s ease;
-  }
-  
-  tbody td {
-      display: table-cell;
-      vertical-align: middle;
-      text-align: center;
-      white-space: nowrap; 
-      padding: 12px 8px; 
-      border-bottom: 1px solid #e2e8f0;
-  }
-  
-  tbody td:before { 
-    content: none; 
-    display: none;
-  }
-  
-  /* Ajustes de tamaño para acciones y imágenes */
-  td[data-label="Imagen"] img {
-    width: 40px; 
-    height: 40px; 
-  }
-  
-  .acciones {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin: 0;
-    padding: 0;
-    border: none;
+  .tabla-container table {
+    min-width: 700px;
   }
 
-  .btn-accion {
-    width: 30px; 
-    height: 30px;
-    font-size: 0.9rem;
-    min-width: 30px;
-    border-radius: 8px;
-    padding: 0;
+  .tabla-container::-webkit-scrollbar {
+    height: 8px;
   }
-  
-  .btn-accion i {
-      margin-right: 0 !important;
+
+  .tabla-container::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
   }
-  /* === FIN DE CAMBIOS CLAVE === */
-  
+
+  .tabla-container::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+  }
+
+  td { font-size: 0.95rem; line-height: 1.5; }
+
   .paginacion {
     flex-wrap: wrap;
     gap: 8px;
@@ -580,3 +537,4 @@ td[data-label="Imagen"] img:hover {
     text-align: center;
   }
 }
+
