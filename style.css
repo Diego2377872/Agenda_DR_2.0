@@ -157,7 +157,7 @@ input:focus, textarea:focus, select:focus {
     display: flex;
     gap: 15px;
     margin-top: 15px;
-    flex-wrap: wrap; /* Añadido para asegurar que se apilen en móvil si es necesario */
+    flex-wrap: wrap; 
 }
 
 button {
@@ -481,11 +481,11 @@ td[data-label="Imagen"] img:hover {
   
   /* Ajuste de botones en el formulario */
   .acciones-form {
-      flex-direction: column; /* Apila los botones Guardar y Cancelar */
+      flex-direction: column; 
       gap: 10px;
   }
   #btnGuardar, #btnCancelar {
-      width: 100%; /* Ocupa todo el ancho */
+      width: 100%; 
       justify-content: center;
   }
 
@@ -493,7 +493,7 @@ td[data-label="Imagen"] img:hover {
   
   .filtros { padding: 15px; }
   .filtros-grid { 
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Hace que quepan más en una fila */
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
   }
 
   /* La tabla está optimizada para display: block */
@@ -502,7 +502,7 @@ td[data-label="Imagen"] img:hover {
     overflow-y: visible;
     padding: 0;
     border: none;
-    background: transparent; /* Fondo transparente para que los <tr> resalten */
+    background: transparent;
   }
 
   table, thead, tbody, th, td, tr { display: block; }
@@ -518,6 +518,13 @@ td[data-label="Imagen"] img:hover {
     display: block;
     animation: none;
     transition: transform 0.2s ease;
+    
+    /* === FIX CLAVE DE VISIBILIDAD === */
+    /* Asegura que la fila esté visible forzando la opacidad a 1 */
+    opacity: 1 !important; 
+    /* Asegura que no haya transformaciones residuales que la oculten */
+    transform: none; 
+    /* ================================= */
   }
 
   tbody tr:hover {
@@ -548,7 +555,7 @@ td[data-label="Imagen"] img:hover {
 
   /* Ajustes para que la Imagen y Acciones se vean bien */
   td[data-label="Imagen"] {
-    display: block; /* Vuelve a bloque para centrar mejor */
+    display: block; 
     text-align: center;
     padding: 12px 0;
   }
