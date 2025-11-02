@@ -7,7 +7,8 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // === ELEMENTOS DEL DOM ===
 const formulario = document.getElementById("formulario");
-const tablaContenedor = document.getElementById("lista"); // <--- AÑADIDO: Referencia al contenedor principal de la tabla
+// IMPORTANTE: Aseguramos que tablaContenedor apunte al ID de la lista/tabla
+const tablaContenedor = document.getElementById("lista"); 
 const tbody = document.getElementById("tbodyActividades");
 const btnGuardar = document.getElementById("btnGuardar");
 const btnCancelar = document.getElementById("btnCancelar");
@@ -192,14 +193,16 @@ async function renderPage() {
 
     tbody.innerHTML = "";
     if (!data || data.length === 0) {
-      tablaContenedor.style.display = "none"; // <--- CAMBIO CLAVE: Oculta el contenedor completo
+      // AJUSTE CRÍTICO: Oculta el contenedor si no hay datos
+      tablaContenedor.style.display = "none"; 
       mensajeVacio.style.display = "block";
       paginacion.style.display = "none";
       hideLoader();
       return;
     }
     
-    tablaContenedor.style.display = "block"; // <--- CAMBIO CLAVE: Muestra el contenedor completo
+    // AJUSTE CRÍTICO: Muestra el contenedor si hay datos, permitiendo que el CSS haga el scroll
+    tablaContenedor.style.display = "block"; 
     mensajeVacio.style.display = "none";
 
     data.forEach((row, index) => {
@@ -238,9 +241,6 @@ async function renderPage() {
 
     btnPrev.onclick = () => { if (currentPage > 1) { currentPage--; renderPage(); } };
     btnNext.onclick = () => { if (data.length === pageSize) { currentPage++; renderPage(); } };
-    
-    // Se elimina la línea 'document.querySelector('.tabla-container').style.height = 'auto';' 
-    // ya que se maneja con el display y el CSS móvil.
 
   } catch (error) {
     alert("Error al cargar datos: " + error.message);
@@ -251,7 +251,7 @@ async function renderPage() {
 
 cargarTabla();
 
-// === EDITAR, BORRAR, GUARDAR, EXPORTAR (igual que antes) ===
+// === FUNCIONES DE EDITAR, BORRAR, GUARDAR, EXPORTAR ===
 
 async function editarActividad(id) {
   try {
