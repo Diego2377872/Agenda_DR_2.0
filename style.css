@@ -153,7 +153,7 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-.acciones-form { /* Añadido para mejor manejo en móvil */
+.acciones-form {
     display: flex;
     gap: 15px;
     margin-top: 15px;
@@ -237,7 +237,7 @@ button {
   margin-top: 30px;
   height: 600px;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: hidden; /* En desktop, ocultamos el scroll horizontal */
   border-radius: 15px;
   position: relative;
   animation: fadeIn 0.8s ease-out 0.4s both;
@@ -306,7 +306,7 @@ thead th:nth-child(8), tbody td:nth-child(8) { width: 15%; }
 
 tbody tr {
   transition: all 0.3s ease;
-  opacity: 0; /* ESTO OCULTA LA FILA INICIALMENTE */
+  opacity: 0;
   animation: fadeInRow 0.5s ease-out forwards;
 }
 
@@ -473,7 +473,7 @@ td[data-label="Imagen"] img:hover {
   100% { transform: rotate(360deg); }
 }
 
-/* === RESPONSIVE MÓVIL (OPTIMIZADO) === */
+/* === RESPONSIVE MÓVIL (AJUSTE A SCROLL HORIZONTAL) === */
 @media (max-width: 768px) {
   .container { padding: 15px; margin: 15px auto; }
   .form-grid, .filtros-grid { grid-template-columns: 1fr; }
@@ -487,126 +487,95 @@ td[data-label="Imagen"] img:hover {
       width: 100%; 
       justify-content: center;
   }
+  
+  /* === CAMBIOS CLAVE PARA EL SCROLL HORIZONTAL === */
 
   .tabla-container {
-    height: auto !important; /* El contenedor debe fluir, no tener scroll fijo */
+    height: auto !important; /* No tener scroll vertical fijo */
     overflow-y: visible !important;
+    overflow-x: auto !important; /* CLAVE: Habilita el scroll horizontal */
     padding: 0;
-    border: none;
-    display: block !important; /* Aseguramos que el contenedor sea visible si JS lo muestra */
+    border: 1px solid #e2e8f0; /* Restauramos el borde */
+    display: block !important;
   }
 
-  table, thead, tbody, th, td, tr { display: block; }
-  thead { display: none; }
+  table {
+    min-width: 850px; /* Forzamos un ancho mínimo para que la tabla desborde y aparezca el scroll */
+    width: 100%; 
+    border-radius: 15px; 
+    overflow: hidden;
+    box-shadow: none; 
+    table-layout: fixed;
+    /* Aseguramos que se muestre como tabla */
+    display: table;
+  }
+
+  thead {
+      display: table-header-group; /* Aseguramos que el thead se muestre */
+  }
 
   tbody tr {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    margin-bottom: 16px;
-    padding: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    
-    /* FIX CRÍTICO: Anula la opacidad: 0 y animación de escritorio */
-    display: block !important;
+    /* Mantenemos solo estilos de visibilidad */
     opacity: 1 !important;
     animation: none !important;
     transform: none !important; 
-    
-    transition: transform 0.2s ease;
+    transition: all 0.3s ease;
+    border-radius: 0;
+    margin-bottom: 0;
+    padding: 0;
+    display: table-row;
   }
-
+  
   tbody tr:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+      box-shadow: none;
   }
 
   tbody td {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0;
-    border: none;
-    text-align: left !important;
-    position: relative;
-    padding-left: 0 !important;
+      /* Restauramos las celdas a su comportamiento normal */
+      display: table-cell;
+      vertical-align: middle;
+      text-align: center;
+      white-space: nowrap; /* Evita que el texto se rompa y fuerce el scroll */
+      padding: 12px 8px; 
+      border-bottom: 1px solid #e2e8f0;
   }
 
-  tbody td:before {
-    content: attr(data-label);
-    font-weight: 700;
-    color: #667eea;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-
-  td[data-label="Imagen"]:before,
-  td[data-label="Acciones"]:before {
+  tbody td:before { 
+    content: none; /* Quitamos las etiquetas de "tarjeta" */
     display: none;
   }
-
-  td[data-label="Imagen"] {
-    text-align: center;
-    padding: 12px 0;
-  }
-
+  
+  /* Ajustamos el tamaño de los elementos internos de la tabla */
   td[data-label="Imagen"] img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    loading: lazy;
+    width: 40px; 
+    height: 40px; 
   }
-
-  td[data-label="Imagen"] img:hover {
-    transform: scale(1.15);
-  }
-
+  
   .acciones {
     display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px dashed #e2e8f0;
+    justify-content: center;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    border: none;
   }
 
   .btn-accion {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
+    width: 30px; 
+    height: 30px;
+    font-size: 0.9rem;
+    min-width: 30px;
+    border-radius: 8px;
     padding: 0;
-    min-width: 44px;
-    touch-action: manipulation;
   }
-
-  /* Se elimina el texto en los botones de acción para que quepan */
+  
   .btn-accion i {
       margin-right: 0 !important;
   }
 
-  .btn-editar {
-    background: rgba(34, 197, 94, 0.15);
-    color: #16a34a;
-    border: 2px solid rgba(34, 197, 94, 0.3);
-  }
-
-  .btn-borrar {
-    background: rgba(239, 68, 68, 0.15);
-    color: #dc2626;
-    border: 2px solid rgba(239, 68, 68, 0.3);
-  }
-
-  td { font-size: 0.95rem; line-height: 1.5; }
-
+  /* === FIN DE CAMBIOS CLAVE === */
+  
+  /* Estilos de paginación y otros elementos permanecen */
   .paginacion {
     flex-wrap: wrap;
     gap: 8px;
