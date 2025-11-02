@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Agenda Personal</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- SheetJS para exportar a Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Flatpickr Locale Español -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header class="header">
+      <h1><i class="fas fa-calendar-alt"></i> Mi Agenda Personal</h1>
+      <p class="subtitle">Registro de Actividades de Diego Rodriguez</p>
+    </header>
+
+    <!-- Formulario -->
+    <form id="formulario" class="formulario">
+      <div class="form-grid">
+        <div class="campo date-input-group">
+          <label for="startDateInput"><i class="fas fa-calendar-day"></i> Desde:</label>
+          <input type="text" id="startDateInput" placeholder="Selecciona fecha desde (DD/MM/YYYY)" required />
+        </div>
+        <div class="campo date-input-group">
+          <label for="endDateInput"><i class="fas fa-calendar-day"></i> Hasta:</label>
+          <input type="text" id="endDateInput" placeholder="Selecciona fecha hasta (DD/MM/YYYY)" required />
+        </div>
+        <div class="campo full-width">
+          <label for="actividad"><i class="fas fa-tasks"></i> Actividad:</label>
+          <textarea id="actividad" required placeholder="Describe qué hiciste..."></textarea>
+        </div>
+        <div class="campo">
+          <label for="lugar"><i class="fas fa-map-marker-alt"></i> Lugar/Institución:</label>
+          <input type="text" id="lugar" required placeholder="Ej. Oficina Central" />
+        </div>
+        <div class="campo">
+          <label for="permiso"><i class="fas fa-file-signature"></i> Permiso:</label>
+          <select id="permiso" required>
+            <option value="">Selecciona...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+            <option value="No es necesario">No es necesario</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="viatico"><i class="fas fa-wallet"></i> Viático:</label>
+          <select id="viatico" required>
+            <option value="">Selecciona...</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <!-- Nuevo: Campo para imagen -->
+        <div class="campo full-width">
+          <label for="imagen"><i class="fas fa-image"></i> Imagen (opcional):</label>
+          <input type="file" id="imagen" accept="image/*" />
+          <small style="color: #6b7280;">Sube una foto relacionada con la actividad (JPG, PNG, GIF).</small>
+        </div>
+      </div>
+      <div class="acciones-form">
+        <button type="submit" id="btnGuardar"><i class="fas fa-save"></i> Guardar Actividad</button>
+        <button type="button" id="btnCancelar" style="display: none;"><i class="fas fa-times"></i> Cancelar</button>
+      </div>
+    </form>
+
+    <!-- Filtros -->
+    <div class="filtros">
+      <h3><i class="fas fa-filter"></i> Filtros</h3>
+      <div class="filtros-grid">
+        <div class="campo-filtro">
+          <label><i class="fas fa-calendar"></i> Año:</label>
+          <select id="filtroAnio"></select>
+        </div>
+        <div class="campo-filtro">
+          <label><i class="fas fa-calendar"></i> Mes:</label>
+          <select id="filtroMes">
+            <option value="">Todos los meses</option>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+        <div class="campo-filtro">
+          <label><i class="fas fa-calendar-range"></i> Rango Desde:</label>
+          <input type="date" id="filtroRangoDesde" />
+        </div>
+        <div class="campo-filtro">
+          <label><i class="fas fa-calendar-range"></i> Rango Hasta:</label>
+          <input type="date" id="filtroRangoHasta" />
+        </div>
+        <div class="campo-filtro">
+          <label><i class="fas fa-file-signature"></i> Permiso:</label>
+          <select id="filtroPermiso">
+            <option value="">Todos</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+            <option value="No es necesario">No es necesario</option>
+          </select>
+        </div>
+        <div class="campo-filtro">
+          <label><i class="fas fa-wallet"></i> Viático:</label>
+          <select id="filtroViatico">
+            <option value="">Todos</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <button id="btnLimpiarFiltros" class="btn-secundario"><i class="fas fa-times"></i> Limpiar</button>
+      </div>
+      <div class="filtros-grid">
+        <button id="btnExportar" class="btn-secundario"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div id="lista" class="tabla-container">
+      <h2><i class="fas fa-list"></i> Actividades Guardadas</h2>
+      <table id="tablaActividades">
+        <thead>
+          <tr>
+            <th><i class="fas fa-calendar icon-fecha"></i> Desde</th>
+            <th><i class="fas fa-calendar icon-fecha"></i> Hasta</th>
+            <th><i class="fas fa-briefcase icon-actividad"></i> Actividad</th>
+            <th><i class="fas fa-location-pin icon-lugar"></i> Lugar</th>
+            <th><i class="fas fa-file-alt icon-permiso"></i> Permiso</th>
+            <th><i class="fas fa-dollar-sign icon-viatico"></i> Viático</th>
+            <!-- Nueva: Columna Imagen -->
+            <th><i class="fas fa-image icon-imagen"></i> Imagen</th>
+            <th><i class="fas fa-ellipsis-v icon-acciones"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyActividades"></tbody>
+      </table>
+      <p id="mensajeVacio" class="mensaje-vacio" style="display: none;">
+        <i class="fas fa-info-circle"></i> No hay actividades que coincidan con los filtros.
+      </p>
+
+      <!-- Paginación -->
+      <div id="paginacion" class="paginacion" style="display: none;">
+        <button id="btnPrev"><i class="fas fa-chevron-left"></i> Anterior</button>
+        <span id="infoPagina"></span>
+        <button id="btnNext"><i class="fas fa-chevron-right"></i> Siguiente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader Overlay -->
+  <div id="loaderOverlay">
+    <div class="loader-content">
+      <div class="spinner"></div>
+      <p>Cargando actividades...</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
