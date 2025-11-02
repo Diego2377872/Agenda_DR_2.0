@@ -237,7 +237,7 @@ button {
   margin-top: 30px;
   height: 600px;
   overflow-y: auto;
-  overflow-x: hidden; /* En desktop, ocultamos el scroll horizontal */
+  overflow-x: hidden;
   border-radius: 15px;
   position: relative;
   animation: fadeIn 0.8s ease-out 0.4s both;
@@ -473,7 +473,7 @@ td[data-label="Imagen"] img:hover {
   100% { transform: rotate(360deg); }
 }
 
-/* === RESPONSIVE MÓVIL (AJUSTE A SCROLL HORIZONTAL) === */
+/* === RESPONSIVE MÓVIL (AJUSTE FINAL DE SCROLL HORIZONTAL) === */
 @media (max-width: 768px) {
   .container { padding: 15px; margin: 15px auto; }
   .form-grid, .filtros-grid { grid-template-columns: 1fr; }
@@ -491,61 +491,48 @@ td[data-label="Imagen"] img:hover {
   /* === CAMBIOS CLAVE PARA EL SCROLL HORIZONTAL === */
 
   .tabla-container {
-    height: auto !important; /* No tener scroll vertical fijo */
+    height: auto !important;
     overflow-y: visible !important;
     overflow-x: auto !important; /* CLAVE: Habilita el scroll horizontal */
     padding: 0;
-    border: 1px solid #e2e8f0; /* Restauramos el borde */
+    border: 1px solid #e2e8f0;
     display: block !important;
+    width: 100%; /* Asegura que no tenga un ancho fijo que impida el desbordamiento */
   }
 
   table {
-    min-width: 850px; /* Forzamos un ancho mínimo para que la tabla desborde y aparezca el scroll */
-    width: 100%; 
-    border-radius: 15px; 
-    overflow: hidden;
-    box-shadow: none; 
+    min-width: 900px !important; /* Aumentamos el ancho mínimo para forzar un desbordamiento significativo */
+    width: auto !important; /* Dejamos que el ancho lo determine el min-width */
+    border-collapse: collapse;
     table-layout: fixed;
-    /* Aseguramos que se muestre como tabla */
     display: table;
   }
-
-  thead {
-      display: table-header-group; /* Aseguramos que el thead se muestre */
-  }
-
+  
+  /* Restauramos el comportamiento de tabla en las filas y celdas */
+  thead { display: table-header-group; }
   tbody tr {
-    /* Mantenemos solo estilos de visibilidad */
-    opacity: 1 !important;
+    display: table-row;
+    opacity: 1 !important; /* FIX de visibilidad */
     animation: none !important;
     transform: none !important; 
     transition: all 0.3s ease;
-    border-radius: 0;
-    margin-bottom: 0;
-    padding: 0;
-    display: table-row;
   }
   
-  tbody tr:hover {
-      box-shadow: none;
-  }
-
   tbody td {
-      /* Restauramos las celdas a su comportamiento normal */
       display: table-cell;
       vertical-align: middle;
       text-align: center;
-      white-space: nowrap; /* Evita que el texto se rompa y fuerce el scroll */
+      white-space: nowrap; 
       padding: 12px 8px; 
       border-bottom: 1px solid #e2e8f0;
   }
-
+  
   tbody td:before { 
-    content: none; /* Quitamos las etiquetas de "tarjeta" */
+    content: none; 
     display: none;
   }
   
-  /* Ajustamos el tamaño de los elementos internos de la tabla */
+  /* Ajustes de tamaño para acciones y imágenes */
   td[data-label="Imagen"] img {
     width: 40px; 
     height: 40px; 
@@ -572,10 +559,8 @@ td[data-label="Imagen"] img:hover {
   .btn-accion i {
       margin-right: 0 !important;
   }
-
   /* === FIN DE CAMBIOS CLAVE === */
   
-  /* Estilos de paginación y otros elementos permanecen */
   .paginacion {
     flex-wrap: wrap;
     gap: 8px;
