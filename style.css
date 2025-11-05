@@ -1,4 +1,4 @@
-/* === AGENDA PERSONAL PREMIUM UI === */
+/* === AGENDA PERSONAL PREMIUM UI (Autoajustable + Iconos coloridos) === */
 * {
   margin: 0;
   padding: 0;
@@ -46,36 +46,39 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.container:hover {
-  transform: translateY(-3px);
-}
+.container:hover { transform: translateY(-3px); }
 
 .header {
   text-align: center;
   margin-bottom: 30px;
 }
+
 .header h1 {
   font-size: 2.7em;
   font-weight: 800;
   color: #3a3a55;
   text-shadow: 1px 1px 2px rgba(102, 126, 234, 0.2);
 }
+
 .header h1 i {
   color: #667eea;
   margin-right: 10px;
   filter: drop-shadow(0 2px 2px rgba(102,126,234,0.4));
   animation: pulseIcon 4s infinite;
 }
+
 @keyframes pulseIcon {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
 }
+
 .subtitle {
   color: #6b7280;
   font-weight: 400;
   font-size: 1.1em;
 }
 
+/* === FORMULARIO === */
 .formulario {
   background: rgba(255, 255, 255, 0.92);
   border-radius: 18px;
@@ -91,9 +94,7 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.formulario:hover {
-  transform: translateY(-4px);
-}
+.formulario:hover { transform: translateY(-4px); }
 
 .form-grid {
   display: grid;
@@ -104,8 +105,7 @@ body::before {
 
 .full-width { grid-column: 1 / -1; }
 
-.date-input-group label,
-.campo label {
+label {
   font-weight: 600;
   color: #4a5568;
   margin-bottom: 6px;
@@ -114,16 +114,12 @@ body::before {
   gap: 8px;
 }
 
-.date-input-group label i,
-.campo label i {
+label i {
   color: #667eea;
   transition: transform 0.3s ease;
 }
 
-.date-input-group:hover i,
-.campo label:hover i {
-  transform: scale(1.1) rotate(10deg);
-}
+label:hover i { transform: scale(1.1) rotate(10deg); }
 
 input, textarea, select {
   border: 2px solid #e2e8f0;
@@ -135,17 +131,6 @@ input, textarea, select {
   width: 100%;
 }
 
-input[type="file"] {
-  border: 2px dashed #e2e8f0;
-  background: #f8fafc;
-  padding: 10px;
-}
-
-input[type="file"]:hover {
-  border-color: #667eea;
-  background: #f0f9ff;
-}
-
 input:focus, textarea:focus, select:focus {
   border-color: #667eea;
   box-shadow: 0 0 12px rgba(102, 126, 234, 0.4);
@@ -153,6 +138,7 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
+/* === BOTONES === */
 button {
   border: none;
   border-radius: 12px;
@@ -187,46 +173,7 @@ button {
   transform: scale(1.05);
 }
 
-.filtros {
-  background: rgba(255,255,255,0.9);
-  padding: 20px;
-  border-radius: 18px;
-  margin-bottom: 25px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  animation: slideUp 0.6s ease-out 0.2s both;
-}
-
-.filtros h3 {
-  color: #4a5568;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filtros h3 i {
-  color: #667eea;
-}
-
-.filtros-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 15px;
-}
-
-.btn-secundario {
-  background: #e2e8f0;
-  color: #4a5568;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-secundario:hover {
-  background: #cbd5e0;
-  transform: translateY(-1px) scale(1.02);
-}
-
-/* === TABLA CON SCROLL HORIZONTAL === */
+/* === TABLA PRINCIPAL === */
 .tabla-container {
   margin-top: 30px;
   height: 600px;
@@ -234,28 +181,14 @@ button {
   overflow-x: auto;
   border-radius: 15px;
   position: relative;
-  animation: fadeIn 0.8s ease-out 0.4s both;
   border: 1px solid #e2e8f0;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e0 #f7fafc;
-  -webkit-overflow-scrolling: touch;
 }
 
-.tabla-container::after {
-  content: "↔ Desliza para ver más";
-  position: absolute;
-  bottom: 8px;
-  right: 12px;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  pointer-events: none;
-  animation: fadeHint 2s ease-in-out infinite;
-}
-
-@keyframes fadeHint {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
+.tabla-container::-webkit-scrollbar { height: 10px; width: 8px; }
+.tabla-container::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
+.tabla-container::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
 table {
   width: 100%;
@@ -264,130 +197,126 @@ table {
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  table-layout: fixed;
-  font-size: 0.88rem;
+  table-layout: auto;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(248, 250, 252, 0.98);
 }
 
 thead th {
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0) !important;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
   color: #4a5568;
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 14px;
   text-transform: uppercase;
-  padding: 13px;
+  padding: 12px;
   border-bottom: 3px solid #cbd5e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  text-align: center;
+  white-space: nowrap;
 }
+
+tbody tr {
+  transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeInRow 0.5s ease-out forwards;
+}
+
+tbody tr:hover {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 5px 15px rgba(102,126,234,0.1);
+}
+
+@keyframes fadeInRow { to { opacity: 1; } }
 
 /* === CELDAS AUTOAJUSTABLES === */
 td {
   padding: 10px 8px;
   border-bottom: 1px solid #e2e8f0;
   color: #4a5568;
-  font-size: 0.87rem;
-  line-height: 1.4;
+  font-size: 14px;
   white-space: normal;
-  word-break: break-word;
+  word-wrap: break-word;
   overflow-wrap: break-word;
-  text-align: left;
   vertical-align: top;
+  text-align: center;
+  line-height: 1.4;
 }
 
-/* === RESPONSIVE MÓVIL (TABLA COMPACTA) === */
+/* === ICONOS COLORIDOS === */
+.icon-fecha { color: #f59e0b; animation: pulseSoft 3s infinite; }
+.icon-actividad { color: #ec4899; animation: pulseSoft 3.2s infinite; }
+.icon-lugar { color: #10b981; animation: pulseSoft 3.4s infinite; }
+.icon-permiso { color: #3b82f6; animation: pulseSoft 3.6s infinite; }
+.icon-viatico { color: #8b5cf6; animation: pulseSoft 3.8s infinite; }
+.icon-imagen { color: #f472b6; animation: pulseSoft 4s infinite; }
+.icon-acciones { color: #64748b; animation: pulseSoft 4.2s infinite; }
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+td i {
+  margin-right: 6px;
+  font-size: 1.1em;
+  vertical-align: middle;
+  transition: transform 0.3s ease;
+}
+
+td i:hover {
+  transform: scale(1.2) rotate(5deg);
+}
+
+/* === IMAGEN === */
+td[data-label="Imagen"] img {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+td[data-label="Imagen"] img:hover { transform: scale(1.1); }
+
+/* === BOTONES DE ACCIÓN === */
+.btn-accion {
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin: 0 2px;
+}
+.btn-editar {
+  background: rgba(72,187,120,0.1);
+  color: #22c55e;
+  border: 1px solid rgba(72,187,120,0.2);
+}
+.btn-editar:hover {
+  background: rgba(72,187,120,0.2);
+  transform: scale(1.1);
+}
+.btn-borrar {
+  background: rgba(239,68,68,0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.2);
+}
+.btn-borrar:hover {
+  background: rgba(239,68,68,0.2);
+  transform: scale(1.1);
+}
+
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .container { 
-    padding: 10px; 
-    margin: 10px auto; 
-  }
-
-  .form-grid, .filtros-grid { 
-    grid-template-columns: 1fr; 
-    gap: 10px;
-  }
-
-  .tabla-container {
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
-    border: none;
-  }
-
-  .tabla-container table {
-    min-width: 700px;
-    border-collapse: collapse;
-    font-size: 0.75rem;
-  }
-
-  thead th {
-    font-size: 0.7rem;
-    padding: 6px 4px;
-  }
-
-  tbody td {
-    padding: 6px 4px;
-    font-size: 0.75rem;
-    line-height: 1.3;
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  td[data-label="Imagen"] img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-
-  .acciones {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    padding-top: 4px;
-  }
-
-  .btn-accion {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }
-
-  .btn-editar {
-    background: rgba(34, 197, 94, 0.15);
-    color: #16a34a;
-    border: 1px solid rgba(34, 197, 94, 0.3);
-  }
-
-  .btn-borrar {
-    background: rgba(239, 68, 68, 0.15);
-    color: #dc2626;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-
-  .paginacion {
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 10px;
-  }
-
-  .paginacion button {
-    min-width: 80px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-
-  #infoPagina {
-    font-size: 0.8rem;
-    color: #6b7280;
-    text-align: center;
-    min-width: 100px;
-  }
+  .container { padding: 15px; margin: 15px auto; }
+  .tabla-container { overflow-x: auto; height: auto; }
+  table { min-width: 850px; table-layout: auto; }
+  td { white-space: normal !important; word-wrap: break-word; }
+  td[data-label="Imagen"] img { width: 45px; height: 45px; }
 }
+
 
 
 
