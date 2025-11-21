@@ -1,5 +1,4 @@
 // === CONFIGURACIÓN SUPABASE ===
-// Configurado con tu URL corregida y credenciales
 const SUPABASE_URL = 'https://zrusehtanthkuqsbzdpe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpydXNlaHRhbnRoa3Vxc2J6ZHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NjIxNDAsImV4cCI6MjA3NzUzODE0MH0.S9JMQEavtjkd1xzZqNcMx3BPnAwoDeOO6OrPqhIl-fs';
 
@@ -25,19 +24,14 @@ const btnPrev = document.getElementById("btnPrev");
 const btnNext = document.getElementById("btnNext");
 const infoPagina = document.getElementById("infoPagina");
 
-// Elementos de fecha e imagen
 const startDateInput = document.getElementById("startDateInput");
 const endDateInput = document.getElementById("endDateInput");
 const imagenInput = document.getElementById("imagen");
 
 // === LOADER ===
 const loader = document.getElementById("loaderOverlay");
-function showLoader() {
-  loader.classList.add("active");
-}
-function hideLoader() {
-  loader.classList.remove("active");
-}
+function showLoader() { loader.classList.add("active"); }
+function hideLoader() { loader.classList.remove("active"); }
 
 // === VARIABLES DE ESTADO ===
 let editandoId = null;
@@ -45,7 +39,7 @@ let queryTotalCount = 0;
 let currentPage = 1;
 const pageSize = 15;
 
-// === FUNCIONES PARA FECHAS (AJUSTE) ===
+// === FECHAS ===
 function getDaysInMonth(year, month) {
   const isLeap = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0));
   const days = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -65,13 +59,12 @@ function buildAndAdjustDateFromString(dateStr, isStart = true) {
     const adjustedDay = maxDays;
     date.setDate(adjustedDay);
     const monthName = ["", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"][month];
-    alert(`¡Advertencia! ${monthName} no tiene ${day} días. Se ajustó al último día válido (${adjustedDay}).`);
+    alert(`Advertencia! ${monthName} no tiene ${day} días. Se ajustó al último día válido (${adjustedDay}).`);
     return date;
   }
   return date;
 }
 
-// Poblar años para filtros
 function initAnios(yearSelect) {
   const currentYear = new Date().getFullYear();
   yearSelect.innerHTML = '<option value="">Todos los años</option>';
@@ -84,7 +77,6 @@ function initAnios(yearSelect) {
 }
 initAnios(filtroAnio);
 
-// Inicializar Flatpickr
 let startPicker, endPicker;
 document.addEventListener("DOMContentLoaded", function() {
   startPicker = flatpickr("#startDateInput", {
@@ -108,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-// === EVENTOS DE FILTRO ===
 [filtroAnio, filtroMes, filtroRangoDesde, filtroRangoHasta, filtroPermiso, filtroViatico].forEach((el) => {
   el.addEventListener("change", cargarTabla);
 });
@@ -123,20 +114,16 @@ btnLimpiarFiltros.addEventListener("click", () => {
   cargarTabla();
 });
 
-// === PAGINACIÓN ===
 function resetPaginacion() {
   currentPage = 1;
   paginacion.style.display = "none";
 }
 
-// === CARGAR TABLA (CON DEBUG) ===
 async function cargarTabla() {
   showLoader();
   resetPaginacion();
 
   try {
-    console.log('Iniciando query con filtros:', { anio: filtroAnio.value, mes: filtroMes.value, rangoDesde: filtroRangoDesde.value, rangoHasta: filtroRangoHasta.value, permiso: filtroPermiso.value, viatico: filtroViatico.value });
-
     let query = supabaseClient.from('actividades').select('*', { count: 'exact', head: true }).order('start_date', { ascending: false });
 
     const rangoDesde = filtroRangoDesde.value ? new Date(filtroRangoDesde.value) : null;
@@ -160,34 +147,24 @@ async function cargarTabla() {
     if (filtroPermiso.value) query = query.eq('permiso', filtroPermiso.value);
     if (filtroViatico.value) query = query.eq('viatico', filtroViatico.value);
 
-    console.log('Query construida:', query);  // Para debug
-
     const { count, error: totalError } = await query;
-    if (totalError) {
-      console.error('Error detallado en query total:', totalError);
-      alert(`Error al cargar filtros: ${totalError.message}. Ver consola para más info.`);
-      hideLoader();
-      return;
-    }
+    if (totalError) throw totalError;
     queryTotalCount = count || 0;
-    console.log('Total de registros:', queryTotalCount);
 
     await renderPage();
   } catch (error) {
-    console.error('Error general en cargarTabla:', error);
-    alert(`Error inesperado: ${error.message}. ¿CORS o conexión?`);
+    alert(`Error al cargar filtros: ${error.message}`);
   } finally {
     hideLoader();
   }
 }
 
-// === RENDERIZAR PÁGINA (CON DEBUG) ===
 async function renderPage() {
   showLoader();
   try {
     const offset = (currentPage - 1) * pageSize;
     let query = supabaseClient.from('actividades').select('*').order('start_date', { ascending: false });
-    // Aplicar los mismos filtros que en cargarTabla (repetir lógica para simplicidad)
+
     const rangoDesde = filtroRangoDesde.value ? new Date(filtroRangoDesde.value) : null;
     const rangoHasta = filtroRangoHasta.value ? new Date(filtroRangoHasta.value) : null;
     if (rangoDesde) query = query.gte('start_date', rangoDesde.toISOString());
@@ -209,16 +186,8 @@ async function renderPage() {
     if (filtroPermiso.value) query = query.eq('permiso', filtroPermiso.value);
     if (filtroViatico.value) query = query.eq('viatico', filtroViatico.value);
 
-    console.log('Ejecutando query para página', currentPage, 'offset:', offset);
-
     const { data, error } = await query.range(offset, offset + pageSize - 1);
-
-    if (error) {
-      console.error('Error detallado en renderPage:', error);
-      alert(`Error al cargar página: ${error.message}. ¿Tabla existe?`);
-      hideLoader();
-      return;
-    }
+    if (error) throw error;
 
     tbody.innerHTML = "";
     if (!data || data.length === 0) {
@@ -232,7 +201,10 @@ async function renderPage() {
     data.forEach((row, index) => {
       const rowElement = document.createElement("tr");
       rowElement.style.animationDelay = `${index * 0.1}s`;
-      const imagenHtml = row.image_url ? `<img src="${row.image_url}" width="50" height="50" style="border-radius: 8px; cursor: pointer;" onclick="window.open('${row.image_url}', '_blank')" alt="Imagen" />` : 'Sin imagen';
+      const imagenHtml = row.image_url ? 
+        `<img src="${row.image_url}" width="50" height="50" loading="lazy" style="border-radius: 8px; cursor: pointer;" onclick="window.open('${row.image_url}', '_blank')" alt="Imagen de actividad" />` : 
+        'Sin imagen';
+
       rowElement.innerHTML = `
         <td data-label="Desde">${new Date(row.start_date).toLocaleDateString("es-ES")}</td>
         <td data-label="Hasta">${new Date(row.end_date).toLocaleDateString("es-ES")}</td>
@@ -241,12 +213,17 @@ async function renderPage() {
         <td data-label="Permiso">${row.permiso}</td>
         <td data-label="Viático">${row.viatico}</td>
         <td data-label="Imagen">${imagenHtml}</td>
-        <td class="acciones">
-          <button class="btn-accion btn-editar" onclick="editarActividad('${row.id}')"><i class="fas fa-edit"></i></button>
-          <button class="btn-accion btn-borrar" onclick="borrarActividad('${row.id}')"><i class="fas fa-trash"></i></button>
+        <td class="acciones" data-label="Acciones">
+          <button class="btn-accion btn-editar" onclick="editarActividad('${row.id}')" aria-label="Editar actividad"><i class="fas fa-edit"></i></button>
+          <button class="btn-accion btn-borrar" onclick="borrarActividad('${row.id}')" aria-label="Borrar actividad"><i class="fas fa-trash"></i></button>
         </td>
       `;
       tbody.appendChild(rowElement);
+    });
+
+    // Lazy load de imágenes
+    document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+      img.loading = "lazy";
     });
 
     const totalPages = Math.ceil(queryTotalCount / pageSize);
@@ -255,52 +232,36 @@ async function renderPage() {
     btnNext.disabled = currentPage === totalPages || data.length < pageSize;
     paginacion.style.display = totalPages > 1 ? "flex" : "none";
 
-    btnPrev.onclick = () => {
-      if (currentPage > 1) {
-        currentPage--;
-        renderPage();
-      }
-    };
-    btnNext.onclick = () => {
-      if (data.length === pageSize) {
-        currentPage++;
-        renderPage();
-      }
-    };
+    btnPrev.onclick = () => { if (currentPage > 1) { currentPage--; renderPage(); } };
+    btnNext.onclick = () => { if (data.length === pageSize) { currentPage++; renderPage(); } };
 
     if (tbody.children.length > 0) {
-      document.querySelector('.tabla-container').style.height = '600px';
+      document.querySelector('.tabla-container').style.height = 'auto';
     }
   } catch (error) {
-    console.error("Error general en renderPage:", error);
     alert("Error al cargar datos: " + error.message);
   } finally {
     hideLoader();
   }
 }
 
-// === CARGAR TABLA INICIAL ===
 cargarTabla();
 
-// === EDITAR ACTIVIDAD ===
+// === EDITAR, BORRAR, GUARDAR, EXPORTAR (igual que antes) ===
+// ... (el resto del código es idéntico al original, solo con mejoras menores)
+
 async function editarActividad(id) {
   try {
     const { data, error } = await supabaseClient.from('actividades').select('*').eq('id', id).single();
-    if (error || !data) {
-      alert("Error: Actividad no encontrada.");
-      return;
-    }
+    if (error || !data) { alert("Error: Actividad no encontrada."); return; }
 
-    const startDate = new Date(data.start_date);
-    const endDate = new Date(data.end_date);
-
-    startDateInput.value = flatpickr.formatDate(startDate, "d/m/Y");
-    endDateInput.value = flatpickr.formatDate(endDate, "d/m/Y");
+    startDateInput.value = flatpickr.formatDate(new Date(data.start_date), "d/m/Y");
+    endDateInput.value = flatpickr.formatDate(new Date(data.end_date), "d/m/Y");
     document.getElementById("actividad").value = data.actividad;
     document.getElementById("lugar").value = data.lugar;
     document.getElementById("permiso").value = data.permiso;
     document.getElementById("viatico").value = data.viatico;
-    imagenInput.value = '';  // Para nueva imagen
+    imagenInput.value = '';
 
     editandoId = id;
     btnGuardar.innerHTML = '<i class="fas fa-sync-alt"></i> Actualizar Actividad';
@@ -311,13 +272,11 @@ async function editarActividad(id) {
   }
 }
 
-// === BORRAR ACTIVIDAD ===
 async function borrarActividad(id) {
   if (confirm("¿Estás seguro de eliminar esta actividad? (Incluyendo imagen si existe)")) {
     try {
       const { data } = await supabaseClient.from('actividades').select('image_url').eq('id', id).single();
       if (data && data.image_url) {
-        // Extraer path relativo (ej. 'public/filename.jpg')
         const filePath = data.image_url.split('actividades-images/')[1];
         const { error: deleteError } = await supabaseClient.storage.from('actividades-images').remove([filePath]);
         if (deleteError) console.warn('Error borrando imagen:', deleteError);
@@ -332,7 +291,6 @@ async function borrarActividad(id) {
   }
 }
 
-// === CANCELAR EDICIÓN ===
 btnCancelar.addEventListener("click", () => {
   formulario.reset();
   editandoId = null;
@@ -343,7 +301,6 @@ btnCancelar.addEventListener("click", () => {
   imagenInput.value = '';
 });
 
-// === SUBIR IMAGEN A STORAGE ===
 async function subirImagen(file) {
   if (!file) return null;
   const fileExt = file.name.split('.').pop();
@@ -356,7 +313,6 @@ async function subirImagen(file) {
   return publicUrl;
 }
 
-// === GUARDAR O ACTUALIZAR ===
 formulario.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -377,7 +333,6 @@ formulario.addEventListener("submit", async (e) => {
   const endDate = buildAndAdjustDateFromString(endStr, false);
 
   if (!startDate || !endDate) return;
-
   if (startDate > endDate) {
     alert("¡Error! La fecha de inicio debe ser anterior o igual a la fecha final.");
     return;
@@ -433,13 +388,10 @@ formulario.addEventListener("submit", async (e) => {
   }
 });
 
-// === EXPORTAR A EXCEL ===
 btnExportar.addEventListener("click", async () => {
   showLoader();
   try {
-    // Re-ejecutar query para exportar todos los datos filtrados
     let query = supabaseClient.from('actividades').select('*').order('start_date', { ascending: false });
-    // Aplicar filtros (mismo código que arriba, para simplicidad)
     const rangoDesde = filtroRangoDesde.value ? new Date(filtroRangoDesde.value) : null;
     const rangoHasta = filtroRangoHasta.value ? new Date(filtroRangoHasta.value) : null;
     if (rangoDesde) query = query.gte('start_date', rangoDesde.toISOString());
@@ -477,8 +429,7 @@ btnExportar.addEventListener("click", async () => {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Actividades");
-    const nombreArchivo = 
-      filtroMes.value ? `agenda_${filtroMes.value}_${filtroAnio.value || "actual"}.xlsx` : "agenda_completa.xlsx";
+    const nombreArchivo = filtroMes.value ? `agenda_${filtroMes.value}_${filtroAnio.value || "actual"}.xlsx` : "agenda_completa.xlsx";
     XLSX.writeFile(wb, nombreArchivo);
     alert("¡Exportado exitosamente!");
   } catch (error) {
