@@ -7,6 +7,8 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // === ELEMENTOS DEL DOM ===
 const formulario = document.getElementById("formulario");
+// IMPORTANTE: Aseguramos que tablaContenedor apunte al ID de la lista/tabla
+const tablaContenedor = document.getElementById("lista"); 
 const tbody = document.getElementById("tbodyActividades");
 const btnGuardar = document.getElementById("btnGuardar");
 const btnCancelar = document.getElementById("btnCancelar");
@@ -191,11 +193,16 @@ async function renderPage() {
 
     tbody.innerHTML = "";
     if (!data || data.length === 0) {
+      // AJUSTE CRÍTICO: Oculta el contenedor si no hay datos
+      tablaContenedor.style.display = "none"; 
       mensajeVacio.style.display = "block";
       paginacion.style.display = "none";
       hideLoader();
       return;
     }
+    
+    // AJUSTE CRÍTICO: Muestra el contenedor si hay datos, permitiendo que el CSS haga el scroll
+    tablaContenedor.style.display = "block"; 
     mensajeVacio.style.display = "none";
 
     data.forEach((row, index) => {
@@ -235,9 +242,12 @@ async function renderPage() {
     btnPrev.onclick = () => { if (currentPage > 1) { currentPage--; renderPage(); } };
     btnNext.onclick = () => { if (data.length === pageSize) { currentPage++; renderPage(); } };
 
+<<<<<<< HEAD
     if (tbody.children.length > 0) {
       document.querySelector('.tabla-container').style.height = 'auto';
     }
+=======
+>>>>>>> ea7e855957517e43a002d989019ca145c86a9baa
   } catch (error) {
     alert("Error al cargar datos: " + error.message);
   } finally {
@@ -247,8 +257,12 @@ async function renderPage() {
 
 cargarTabla();
 
+<<<<<<< HEAD
 // === EDITAR, BORRAR, GUARDAR, EXPORTAR (igual que antes) ===
 // ... (el resto del código es idéntico al original, solo con mejoras menores)
+=======
+// === FUNCIONES DE EDITAR, BORRAR, GUARDAR, EXPORTAR ===
+>>>>>>> ea7e855957517e43a002d989019ca145c86a9baa
 
 async function editarActividad(id) {
   try {
