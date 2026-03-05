@@ -2,7 +2,6 @@ name: Despertador de Supabase
 
 on:
   schedule:
-    # Se ejecuta a las 00:00 cada 3 días
     - cron: '0 0 */3 * *'
   workflow_dispatch: 
 
@@ -11,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Consultar base de datos
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/actividades?select=id&limit=1" \
-          -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+          curl -i -X GET "${SUPABASE_URL}/rest/v1/actividades?select=id&limit=1" \
+          -H "apikey: ${SUPABASE_ANON_KEY}" \
+          -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
