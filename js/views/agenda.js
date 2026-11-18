@@ -35,7 +35,8 @@ export async function mount(section) {
   el.innerHTML = `
   <div class="card">
     <div class="chips presets" id="presets">${PRESETS.map((p) => `<button class="chip ${p.tone || ''}" data-preset="${p.id}"><i class="fas ${p.icon}"></i>${p.label}<span class="n" data-n="${p.id}"></span></button>`).join('')}</div>
-    <div class="filters">
+    <button class="btn ghost w100 filters-toggle" id="fToggle"><i class="fas fa-sliders"></i> Más filtros <span id="fCount"></span></button>
+    <div class="filters" id="filtersBox">
       <label>Año<select id="qYear"></select></label>
       <label>Mes<select id="qMonth"><option value="">Todos</option>${MESES.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('')}</select></label>
       <label>Desde<input type="date" id="qFrom"></label>
@@ -103,6 +104,7 @@ function bind() {
   const map = { qYear: 'year', qMonth: 'month', qFrom: 'from', qTo: 'to', qPermiso: 'permiso', qViatico: 'viatico' };
   Object.entries(map).forEach(([id, k]) => $('#' + id).addEventListener('change', (e) => setQuery({ [k]: e.target.value, preset: '' })));
   $('#qClear').addEventListener('click', clearAll);
+  $('#fToggle').addEventListener('click', () => $('#filtersBox').classList.toggle('open'));
   $('#emptyClear').addEventListener('click', () => setQuery({ ...defaultQuery(), year: '', size: getState().query.size, preset: 'todo' }));
   $('#qSize').addEventListener('change', (e) => { setPrefs({ pageSize: Number(e.target.value) }); setQuery({ size: Number(e.target.value) }); });
   $('#btnNew2').addEventListener('click', () => openForm());
@@ -153,6 +155,7 @@ function syncControls() {
   if (q.permiso) chips.push(['permiso', `Permiso: ${permisoInfo(q.permiso).label}`]);
   if (q.viatico) chips.push(['viatico', `Viático: ${q.viatico}`]);
   if (q.hasImage) chips.push(['hasImage', 'Con imagen']);
+  $('#fCount').textContent = chips.length ? `(${chips.length})` : '';
   $('#activeFilters').innerHTML = chips.map(([k, t]) => `<span class="fchip">${esc(t)}<button data-rm="${k}" aria-label="Quitar filtro"><i class="fas fa-xmark"></i></button></span>`).join('');
 }
 const isDefault = (q) => q.year === String(thisYear()) && !q.month && !q.from && !q.to && !q.permiso && !q.viatico && !q.hasImage;
