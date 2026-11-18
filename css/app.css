@@ -283,7 +283,8 @@ select:focus, input:focus, textarea:focus { border-color: var(--primary); box-sh
 @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 900px) {
   .grid2 { grid-template-columns: 1fr; }
-  .sidebar { position: fixed; left: 0; transform: translateX(-100%); transition: transform .2s; width: var(--sb-w) !important; box-shadow: 10px 0 40px rgba(0,0,0,.2); }
+  .sidebar { position: fixed; left: 0; transform: translateX(-100%); transition: transform .2s; width: var(--sb-w) !important; box-shadow: none; visibility: hidden; }
+  body.nav-open .sidebar { box-shadow: 10px 0 40px rgba(0,0,0,.2); visibility: visible; }
   .sb-collapsed .brand-text, .sb-collapsed .nav a span { display: initial; }
   body.nav-open .sidebar { transform: none; }
   .only-mobile { display: inline-grid; }

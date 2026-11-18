@@ -175,7 +175,7 @@ export async function openForm({ mode = 'new', row = null, date = null } = {}) {
   $('#saveBtn').addEventListener('click', () => save(false));
   $('#saveNew')?.addEventListener('click', () => save(true));
   root.querySelector('#actForm').addEventListener('submit', (e) => { e.preventDefault(); save(false); });
-  form.act.focus();
+  if (matchMedia('(min-width: 760px) and (pointer: fine)').matches) form.act.focus(); // en el celular no abrir el teclado de golpe
 
   // Sugerencias inteligentes (asíncronas)
   const sug = await suggestions();
