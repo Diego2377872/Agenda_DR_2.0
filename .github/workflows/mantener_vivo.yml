@@ -34,12 +34,12 @@ jobs:
           fi
           ok=0; code=000; ms=0
           for i in 1 2 3 4 5; do
-            t0=$(date +%s%3N)
-            code=$(curl -s -o body.txt -w '%{http_code}' --max-time 60 \
+            out=$(curl -s -o body.txt -w '%{http_code} %{time_total}' --max-time 60 \
               "${SUPABASE_URL}/rest/v1/actividades?select=id&limit=1" \
               -H "apikey: ${SUPABASE_ANON_KEY}" \
-              -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" || echo 000)
-            ms=$(( $(date +%s%3N) - t0 ))
+              -H "Authorization: Bearer ${SUPABASE_ANON_KEY}") || out="000 0"
+            code=${out%% *}
+            ms=$(awk -v t="${out##* }" 'BEGIN { printf "%d", t * 1000 }')
             echo "Intento $i: HTTP $code en ${ms} ms"
             if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then ok=1; break; fi
             sleep $(( i * 20 ))
