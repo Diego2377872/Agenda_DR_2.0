@@ -1,19 +1,71 @@
 name: Despertador de Supabase
 
+# Evita que Supabase (plan Free) pause el proyecto por inactividad (7 días)
+# y que GitHub desactive este workflow por inactividad del repo (60 días).
 on:
   schedule:
-    - cron: '0 0 */3 * *'
-  workflow_dispatch: 
+    - cron: '17 11 */2 * *'   # cada 2 días, 08:17 hora de Paraguay
+  workflow_dispatch:
+
+permissions:
+  contents: write   # para registrar el latido (commit)
+  actions: write    # para re-habilitar este workflow y reiniciar el contador de 60 días
+
+concurrency:
+  group: despertador
+  cancel-in-progress: false
 
 jobs:
   ping:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Consultar base de datos
+      - uses: actions/checkout@v4
+
+      - name: Despertar Supabase (con reintentos y verificación HTTP)
+        id: ping
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          curl -i -X GET "${SUPABASE_URL}/rest/v1/actividades?select=id&limit=1" \
-          -H "apikey: ${SUPABASE_ANON_KEY}" \
-          -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"
+          set -u
+          if [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_ANON_KEY}" ]; then
+            echo "::error::Faltan los secrets SUPABASE_URL / SUPABASE_ANON_KEY"; exit 1
+          fi
+          ok=0; code=000; ms=0
+          for i in 1 2 3 4 5; do
+            t0=$(date +%s%3N)
+            code=$(curl -s -o body.txt -w '%{http_code}' --max-time 60 \
+              "${SUPABASE_URL}/rest/v1/actividades?select=id&limit=1" \
+              -H "apikey: ${SUPABASE_ANON_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" || echo 000)
+            ms=$(( $(date +%s%3N) - t0 ))
+            echo "Intento $i: HTTP $code en ${ms} ms"
+            if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then ok=1; break; fi
+            sleep $(( i * 20 ))
+          done
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "ms=$ms" >> "$GITHUB_OUTPUT"
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::Supabase no respondió 2xx (HTTP $code). Si es 540/503 el proyecto está PAUSADO: restaurarlo en https://supabase.com/dashboard"
+            head -c 500 body.txt || true
+            exit 1
+          fi
+          rm -f body.txt
+          echo "### ✅ Supabase despierto — HTTP $code en ${ms} ms" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Registrar latido (commit) para mantener activo el repositorio
+        run: |
+          mkdir -p keepalive
+          printf '{"utc":"%s","http":%s,"ms":%s,"run":"%s"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            "${{ steps.ping.outputs.code }}" "${{ steps.ping.outputs.ms }}" "${{ github.run_id }}" > keepalive/last_ping.json
+          git config user.name "agenda-despertador[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add keepalive/last_ping.json
+          git commit -m "chore(despertador): latido $(date -u +%F)" || { echo "Sin cambios"; exit 0; }
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
+
+      - name: Reiniciar contador de inactividad del workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method PUT "repos/${{ github.repository }}/actions/workflows/mantener_vivo.yml/enable" || true
