@@ -2,12 +2,13 @@
 import { CONFIG } from '../config.js';
 import { dateWindow, cleanSearch } from './query.js';
 import { ymdToTs } from '../core/dates.js';
+import { loadScript } from '../core/utils.js';
 
 let sb = null;
 async function client() {
   if (sb) return sb;
-  const { createClient } = await import(CONFIG.supabaseJs);
-  sb = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
+  if (!window.supabase?.createClient) await loadScript(CONFIG.supabaseJs);
+  sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
   return sb;
 }
 const T = CONFIG.table;

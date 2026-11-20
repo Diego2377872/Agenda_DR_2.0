@@ -3,7 +3,7 @@ import { getState, setQuery, subscribe, defaultQuery, setPrefs } from '../core/s
 import { api, allRows, invalidate } from '../services/data.js';
 import { CONFIG } from '../config.js';
 import { esc, safeUrl } from '../core/utils.js';
-import { MESES, todayYMD, thisYear, tsToYMD, fmt, fmtNice, diffDays, relLabel, weekRange, monthRange, addDays } from '../core/dates.js';
+import { MESES, MESES_CORTO, todayYMD, thisYear, tsToYMD, fmt, fmtNice, diffDays, relLabel, weekRange, monthRange, addDays } from '../core/dates.js';
 import { permisoInfo, viaticoInfo, badge, deleteRow, duplicateRow, permisoMenu, viaticoMenu, rowMenu, exportExcel, exportCsv } from '../components/actions.js';
 import { openForm } from '../components/form.js';
 import { toast, confirmDialog, openMenu, showImage } from '../components/ui.js';
@@ -35,7 +35,7 @@ export async function mount(section) {
   el.innerHTML = `
   <div class="card">
     <div class="chips presets" id="presets">${PRESETS.map((p) => `<button class="chip ${p.tone || ''}" data-preset="${p.id}"><i class="fas ${p.icon}"></i>${p.label}<span class="n" data-n="${p.id}"></span></button>`).join('')}</div>
-    <button class="btn ghost w100 filters-toggle" id="fToggle"><i class="fas fa-sliders"></i> Más filtros <span id="fCount"></span></button>
+    <button class="btn ghost w100 filters-toggle" id="fToggle"><i class="fas fa-sliders"></i> Filtros avanzados <span id="fCount"></span></button>
     <div class="filters" id="filtersBox">
       <label>Año<select id="qYear"></select></label>
       <label>Mes<select id="qMonth"><option value="">Todos</option>${MESES.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('')}</select></label>
@@ -52,6 +52,7 @@ export async function mount(section) {
     <div class="toolbar">
       <div class="tb-left"><strong id="tCount">—</strong><span class="muted" id="tTime"></span></div>
       <div class="tb-right">
+        <div class="seg-mini" id="viewSwitch"><button data-view="cards" title="Tarjetas"><i class="fas fa-table-cells-large"></i><span>Tarjetas</span></button><button data-view="table" title="Tabla"><i class="fas fa-table-list"></i><span>Tabla</span></button></div>
         <label class="muted">Filas <select id="qSize">${CONFIG.pageSizes.map((n) => `<option>${n}</option>`).join('')}</select></label>
         <button class="btn ghost" id="btnExport"><i class="fas fa-file-export"></i> Exportar</button>
         <button class="btn primary" id="btnNew2"><i class="fas fa-plus"></i> Nueva</button>
@@ -65,6 +66,7 @@ export async function mount(section) {
       <button class="btn sm danger" data-bulk="delete"><i class="fas fa-trash"></i> Eliminar</button>
       <button class="btn sm ghost" data-bulk="clear"><i class="fas fa-xmark"></i></button>
     </div>
+    <div class="cards-wrap" id="cardsWrap"><label class="selpage"><input type="checkbox" id="selAll2"> Seleccionar esta página</label><div id="cards"></div></div>
     <div class="dt-scroll"><table class="dt">
       <thead><tr><th class="cb"><input type="checkbox" id="selAll" aria-label="Seleccionar página"></th>
         ${COLS.map((c) => `<th ${c.sortable ? `data-sort="${c.key}" class="sortable"` : ''}>${c.label}<i class="fas sort-i"></i></th>`).join('')}
@@ -126,8 +128,13 @@ function bind() {
   });
   $('#selAll').addEventListener('change', (e) => { rows.forEach((r) => (e.target.checked ? selected.add(r.id) : selected.delete(r.id))); refreshSelection(); });
   $('#tbody').addEventListener('click', onRowClick);
-  $('#tbody').addEventListener('dblclick', (e) => { if (e.target.closest('button,a,input,.badge')) return; const tr = e.target.closest('tr[data-id]'); if (tr) openForm({ mode: 'edit', row: rows.find((r) => r.id === tr.dataset.id) }); });
-  $('#tbody').addEventListener('contextmenu', (e) => { const tr = e.target.closest('tr[data-id]'); if (!tr) return; e.preventDefault(); rowMenu({ getBoundingClientRect: () => ({ left: e.clientX, bottom: e.clientY }) }, rows.find((r) => r.id === tr.dataset.id)); });
+  $('#cards').addEventListener('click', onRowClick);
+  $('#selAll2').addEventListener('change', (e) => { rows.forEach((r) => (e.target.checked ? selected.add(r.id) : selected.delete(r.id))); refreshSelection(); });
+  $('#viewSwitch').addEventListener('click', (e) => { const b = e.target.closest('[data-view]'); if (b) { setPrefs({ listView: b.dataset.view }); applyView(); } });
+  for (const box of [$('#tbody'), $('#cards')]) {
+    box.addEventListener('dblclick', (e) => { if (e.target.closest('button,a,input,.badge')) return; const tr = e.target.closest('[data-id]'); if (tr) openForm({ mode: 'edit', row: rows.find((r) => r.id === tr.dataset.id) }); });
+    box.addEventListener('contextmenu', (e) => { const tr = e.target.closest('[data-id]'); if (!tr) return; e.preventDefault(); rowMenu({ getBoundingClientRect: () => ({ left: e.clientX, bottom: e.clientY }) }, rows.find((r) => r.id === tr.dataset.id)); });
+  }
   $('#bulkbar').addEventListener('click', onBulk);
   $('#pager').addEventListener('click', (e) => { const b = e.target.closest('[data-page]'); if (b && !b.disabled) { setQuery({ page: Number(b.dataset.page) }, false); el.querySelector('.dt-scroll').scrollTop = 0; } });
 }
@@ -172,7 +179,7 @@ async function load() {
     render(q, Math.round(performance.now() - t0));
   } catch (e) {
     if (my !== reqId) return;
-    el.querySelector('#tbody').innerHTML = `<tr><td colspan="8" class="err-cell"><i class="fas fa-plug-circle-xmark"></i> No se pudo cargar: ${esc(e.message)} <button class="btn sm ghost" id="retry">Reintentar</button></td></tr>`;
+    el.querySelector('#cards').innerHTML = ''; el.querySelector('#tbody').innerHTML = `<tr><td colspan="8" class="err-cell"><i class="fas fa-plug-circle-xmark"></i> No se pudo cargar: ${esc(e.message)} <button class="btn sm ghost" id="retry">Reintentar</button></td></tr>`;
     el.querySelector('#retry')?.addEventListener('click', load);
   } finally { if (my === reqId) el.querySelector('.table-card').classList.remove('loading'); }
 }
@@ -203,6 +210,8 @@ function render(q, ms) {
   $('#tTime').textContent = ` · ${ms} ms`;
   $('#empty').hidden = rows.length > 0;
   $('#tbody').innerHTML = rows.map(rowHtml).join('');
+  $('#cards').innerHTML = cardsHtml(rows, q);
+  applyView();
   const pages = Math.max(1, Math.ceil(count / q.size)), p = q.page;
   const nums = [...new Set([1, p - 2, p - 1, p, p + 1, p + 2, pages])].filter((x) => x >= 1 && x <= pages).sort((a, b) => a - b);
   let html = `<button class="pg" data-page="${p - 1}" ${p <= 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
@@ -215,14 +224,14 @@ function render(q, ms) {
 }
 
 function refreshSelection() {
-  el.querySelectorAll('#tbody tr[data-id]').forEach((tr) => { const on = selected.has(tr.dataset.id); tr.classList.toggle('sel', on); tr.querySelector('[data-cb]').checked = on; });
-  const all = el.querySelector('#selAll'); const onPage = rows.filter((r) => selected.has(r.id)).length;
-  all.checked = rows.length > 0 && onPage === rows.length; all.indeterminate = onPage > 0 && onPage < rows.length;
+  el.querySelectorAll('[data-id]').forEach((tr) => { const on = selected.has(tr.dataset.id); tr.classList.toggle('sel', on); const cb = tr.querySelector('[data-cb]'); if (cb) cb.checked = on; });
+  const all = el.querySelector('#selAll'); const all2 = el.querySelector('#selAll2'); const onPage = rows.filter((r) => selected.has(r.id)).length;
+  for (const a of [all, all2]) { a.checked = rows.length > 0 && onPage === rows.length; a.indeterminate = onPage > 0 && onPage < rows.length; }
   el.querySelector('#bulkbar').hidden = selected.size === 0; el.querySelector('#selN').textContent = selected.size;
 }
 
 function onRowClick(e) {
-  const tr = e.target.closest('tr[data-id]'); if (!tr) return;
+  const tr = e.target.closest('[data-id]'); if (!tr) return;
   const row = rows.find((r) => r.id === tr.dataset.id); if (!row) return;
   if (e.target.matches('[data-cb]')) { e.target.checked ? selected.add(row.id) : selected.delete(row.id); return refreshSelection(); }
   if (e.target.closest('[data-img]')) return showImage(row.image_url);
@@ -279,3 +288,52 @@ async function updatePresetCounts() {
   } catch { /* opcional */ }
 }
 export const title = 'Actividades';
+
+// ---- Vista de tarjetas agrupadas por mes ----
+function applyView() {
+  const v = getState().prefs.listView || (innerWidth < 900 ? 'cards' : 'cards');
+  el.querySelector('.table-card').dataset.view = v;
+  el.querySelectorAll('#viewSwitch [data-view]').forEach((b) => b.classList.toggle('on', b.dataset.view === v));
+}
+function cardHtml(r) {
+  const s = tsToYMD(r.start_date), e = tsToYMD(r.end_date) || s;
+  const n = diffDays(s, e) + 1; const rel = relLabel(s);
+  const today = todayYMD(); const live = s <= today && today <= e;
+  const img = safeUrl(r.image_url);
+  const wd = fmtNice(s).split(' ')[0];
+  const pi = permisoInfo(r.permiso);
+  return `<article class="acard tone-${pi.tone} ${selected.has(r.id) ? 'sel' : ''} ${live ? 'live' : ''}" data-id="${esc(r.id)}">
+    <label class="ac-cb"><input type="checkbox" data-cb ${selected.has(r.id) ? 'checked' : ''} aria-label="Seleccionar"></label>
+    <div class="ac-date"><b>${Number(s.slice(8))}</b><span>${MESES_CORTO[Number(s.slice(5, 7)) - 1]}</span><small>${wd}</small></div>
+    <div class="ac-body">
+      <h4>${esc(r.actividad)}</h4>
+      <div class="ac-meta">
+        <span class="place"><i class="fas fa-location-dot"></i>${esc(r.lugar)}</span>
+        ${n > 1 ? `<span class="pill">${n} días · hasta ${fmtNice(e)}</span>` : ''}
+        ${rel ? `<span class="rel ${live ? 'now' : ''}">${rel}</span>` : ''}
+      </div>
+      <div class="ac-tags">${badge(pi, 'data-q="permiso" role="button" tabindex="0" title="Clic para cambiar"')}${badge(viaticoInfo(r.viatico), 'data-q="viatico" role="button" tabindex="0" title="Clic para cambiar"')}</div>
+    </div>
+    ${img ? `<img class="ac-thumb thumb" src="${esc(img)}" loading="lazy" alt="Evidencia" data-img>` : ''}
+    <div class="ac-actions">
+      <button class="icon-btn sm" data-a="edit" title="Editar"><i class="fas fa-pen"></i></button>
+      <button class="icon-btn sm" data-a="more" title="Más"><i class="fas fa-ellipsis-vertical"></i></button>
+    </div></article>`;
+}
+function cardsHtml(list, q) {
+  if (!list.length) return '';
+  if (q.sort !== 'start_date') return `<div class="cgroup-list">${list.map(cardHtml).join('')}</div>`;
+  const groups = []; let cur = null;
+  for (const r of list) {
+    const k = tsToYMD(r.start_date).slice(0, 7);
+    if (!cur || cur.k !== k) groups.push((cur = { k, items: [] }));
+    cur.items.push(r);
+  }
+  return groups.map((g) => {
+    const [y, m] = g.k.split('-').map(Number);
+    const pend = g.items.filter((r) => r.permiso === 'Sín Entregar').length;
+    return `<section class="cgroup"><header class="cg-head"><h3>${MESES[m - 1]} <span>${y}</span></h3>
+      <div class="cg-stats"><span>${g.items.length} en esta página</span>${pend ? `<span class="pill warn">${pend} sin entregar</span>` : ''}</div></header>
+      <div class="cgroup-list">${g.items.map(cardHtml).join('')}</div></section>`;
+  }).join('');
+}

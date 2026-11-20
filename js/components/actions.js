@@ -66,15 +66,16 @@ export async function exportExcel(rows, name) {
   const ws = window.XLSX.utils.json_to_sheet(toExport(rows));
   ws['!cols'] = [{ wch: 11 }, { wch: 11 }, { wch: 50 }, { wch: 24 }, { wch: 16 }, { wch: 8 }, { wch: 40 }];
   const wb = window.XLSX.utils.book_new(); window.XLSX.utils.book_append_sheet(wb, ws, 'Actividades');
-  window.XLSX.writeFile(wb, name);
+  const b64 = window.XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+  return download(name, b64, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', { base64: true });
 }
 export function exportCsv(rows, name) {
   const data = toExport(rows); const cols = Object.keys(data[0] || { Desde: '' });
   const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  download(name, '\ufeff' + [cols.map(q).join(';'), ...data.map((r) => cols.map((c) => q(r[c])).join(';'))].join('\r\n'), 'text/csv;charset=utf-8');
+  return download(name, '\ufeff' + [cols.map(q).join(';'), ...data.map((r) => cols.map((c) => q(r[c])).join(';'))].join('\r\n'), 'text/csv;charset=utf-8');
 }
 export async function backupJson() {
   const rows = await allRows(true);
-  download(`agenda_DR_respaldo_${todayYMD()}.json`, JSON.stringify({ exportado: new Date().toISOString(), tabla: CONFIG.table, total: rows.length, filas: rows }, null, 1), 'application/json');
-  toast(`Respaldo descargado: ${rows.length} actividades`);
+  const where = await download(`agenda_DR_respaldo_${todayYMD()}.json`, JSON.stringify({ exportado: new Date().toISOString(), tabla: CONFIG.table, total: rows.length, filas: rows }, null, 1), 'application/json');
+  toast(`Respaldo guardado (${rows.length} actividades): ${where}`);
 }

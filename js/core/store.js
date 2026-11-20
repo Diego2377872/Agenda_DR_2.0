@@ -11,7 +11,7 @@ export const defaultQuery = () => ({
 
 let state = {
   query: { ...defaultQuery(), size: loadPrefs().pageSize || 25 },
-  prefs: { theme: document.documentElement.dataset.theme, ...loadPrefs() },
+  prefs: { theme: document.documentElement.dataset.theme, listView: 'cards', ...loadPrefs() },
   db: { status: 'checking', ms: null, msg: '' },
   dataVersion: 0, // se incrementa con cada escritura -> las vistas recargan
 };

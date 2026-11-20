@@ -1,12 +1,12 @@
 // Configuración central (la anon key es pública por diseño; la protección real es RLS en Supabase)
 export const CONFIG = Object.freeze({
-  version: '3.0.0',
+  version: '3.1.0',
   supabaseUrl: 'https://zrusehtanthkuqsbzdpe.supabase.co',
   supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpydXNlaHRhbnRoa3Vxc2J6ZHBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5NjIxNDAsImV4cCI6MjA3NzUzODE0MH0.S9JMQEavtjkd1xzZqNcMx3BPnAwoDeOO6OrPqhIl-fs',
   table: 'actividades',
   bucket: 'actividades-images',
-  supabaseJs: 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm',
-  xlsxUrl: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  supabaseJs: 'vendor/supabase.js', // copia local (funciona dentro de la APK sin CDN)
+  xlsxUrl: 'vendor/xlsx.full.min.js',
   maxImageMB: 5,
   // Valores EXACTOS tal como están guardados en la base (no cambiar: compatibilidad con datos históricos)
   permisos: [

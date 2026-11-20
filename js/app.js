@@ -81,3 +81,17 @@ function init() {
   setInterval(() => { if (!document.hidden) wakeDb({ retries: 1 }); }, 10 * 60 * 1000);
 }
 init();
+
+// ---- Integración nativa (APK Android con Capacitor) ----
+const cap = window.Capacitor;
+if (cap?.isNativePlatform?.()) {
+  document.documentElement.classList.add('native');
+  cap.Plugins.App?.addListener('backButton', () => {
+    const open = ['#menu-root', '#modal-root', '#drawer-root'].some((s) => $(s).innerHTML);
+    if (open) return document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    if (document.body.classList.contains('nav-open')) return document.body.classList.remove('nav-open');
+    if (!location.hash.startsWith('#/inicio')) { location.hash = '#/inicio'; return; }
+    cap.Plugins.App.exitApp();
+  });
+  cap.Plugins.App?.addListener('resume', () => wakeDb({ retries: 2 }));
+}

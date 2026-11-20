@@ -18,8 +18,26 @@ export function loadScript(src) {
 }
 // Neutraliza inyección de fórmulas en CSV/Excel
 export const cellSafe = (v) => (typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v);
-export function download(name, content, type = 'application/octet-stream') {
-  const blob = content instanceof Blob ? content : new Blob([content], { type });
+export const isNative = () => !!window.Capacitor?.isNativePlatform?.();
+function utf8ToB64(str) {
+  const bytes = new TextEncoder().encode(str); let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+// Guarda un archivo. En la APK: lo escribe en Documentos (o caché) y abre el menú Compartir de Android.
+// content: texto, o base64 si opts.base64 = true. Devuelve una descripción de dónde quedó.
+export async function download(name, content, type = 'application/octet-stream', opts = {}) {
+  if (isNative()) {
+    const { Filesystem, Share } = window.Capacitor.Plugins;
+    const data = opts.base64 ? content : utf8ToB64(String(content));
+    let res, where;
+    try { res = await Filesystem.writeFile({ path: `AgendaDR/${name}`, data, directory: 'DOCUMENTS', recursive: true }); where = `Documentos/AgendaDR/${name}`; }
+    catch { res = await Filesystem.writeFile({ path: name, data, directory: 'CACHE' }); where = name; }
+    try { await Share.share({ title: name, url: res.uri, dialogTitle: 'Guardar o compartir' }); } catch { /* el usuario cerró el menú */ }
+    return where;
+  }
+  const blob = opts.base64 ? new Blob([Uint8Array.from(atob(content), (c) => c.charCodeAt(0))], { type }) : (content instanceof Blob ? content : new Blob([content], { type }));
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  return name;
 }

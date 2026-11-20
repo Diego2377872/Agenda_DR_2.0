@@ -2,31 +2,31 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0a1a" />
   <title>Agenda DR · Diego Rodríguez</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>" />
   <script>
     // Aplica preferencias antes de pintar (evita parpadeo)
     (function () {
       try {
         var p = JSON.parse(localStorage.getItem('agendaDR.prefs') || '{}');
-        var dark = p.theme ? p.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark = p.theme ? p.theme === 'dark' : true;
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         if (p.sidebar === 'collapsed') document.documentElement.classList.add('sb-collapsed');
       } catch (e) {}
     })();
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="css/app.css?v=3.0.0" />
+  <link rel="stylesheet" href="vendor/fa/css/all.min.css" />
+  <link rel="stylesheet" href="css/app.css?v=3.1.0" />
 </head>
 <body>
   <div class="app">
     <aside id="sidebar" class="sidebar">
       <div class="brand">
-        <div class="brand-logo"><i class="fas fa-calendar-check"></i></div>
+        <div class="brand-logo"><img src="icon-192.png" alt="" /></div>
         <div class="brand-text"><strong>Agenda DR</strong><small>Diego Rodríguez</small></div>
       </div>
       <nav class="nav">
@@ -37,7 +37,7 @@
       </nav>
       <div class="sidebar-foot">
         <button class="btn ghost w100" id="btnCollapse" title="Contraer menú"><i class="fas fa-angles-left"></i><span>Contraer</span></button>
-        <small class="ver">v3.0.0</small>
+        <small class="ver">v3.1.0</small>
       </div>
     </aside>
 
@@ -75,6 +75,7 @@
   <div id="menu-root"></div>
   <div id="toast-root" aria-live="polite"></div>
 
-  <script type="module" src="js/app.js?v=3.0.0"></script>
+  <script src="vendor/supabase.js"></script>
+  <script type="module" src="js/app.js?v=3.1.0"></script>
 </body>
 </html>

@@ -68,7 +68,7 @@ async function render() {
   <div class="card"><h3><i class="fas fa-circle-info"></i> Acerca de</h3>
     <p>Agenda DR v${CONFIG.version}${isDemo ? ' · <b>MODO DEMO</b>' : ''} · Tabla <code>${CONFIG.table}</code> · Bucket <code>${CONFIG.bucket}</code></p>
     <p class="muted">Atajos: <kbd>N</kbd> nueva actividad · <kbd>/</kbd> buscar · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> guardar · <kbd>Esc</kbd> cerrar · doble clic o clic derecho en una fila.</p>
-    <p><a href="legacy/" target="_blank" rel="noopener">Abrir versión anterior (2.0)</a> · <a href="${REPO}" target="_blank" rel="noopener">Repositorio</a></p>
+    <p><a href="legacy/" target="_blank" rel="noopener">Versión anterior (2.0)</a> · <a href="${REPO}" target="_blank" rel="noopener">Repositorio</a></p>
   </div>`;
   paintDb();
 }
